@@ -12,8 +12,13 @@
             --star-glow: #e2e8f0;
         }
 
+        * {
+            box-sizing: border-box;
+        }
+
         body, html {
-            margin: 0; padding: 0; min-height: 100vh; overflow: hidden;
+            width: 100%;
+            margin: 0; padding: 0; min-height: 100vh; min-height: 100dvh; overflow: hidden;
             background: radial-gradient(circle at 50% 40%, #1c1540 0%, var(--sky-top) 50%, var(--sky-bot) 100%);
             font-family: 'Outfit', sans-serif;
             color: #fff;
@@ -28,7 +33,8 @@
             position: absolute; bottom: 8%; left: 50%; transform: translateX(-50%);
             background: rgba(20, 20, 40, 0.4); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
             padding: 35px 50px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.2);
-            text-align: center; color: #fff; max-width: 90%; width: 550px;
+            text-align: center; color: #fff; width: min(550px, calc(100% - 32px)); max-width: calc(100% - 32px);
+            max-height: 85vh; max-height: 85dvh; overflow-y: auto;
             box-shadow: 0 20px 40px rgba(0,0,0,0.4), inset 0 0 20px rgba(255,255,255,0.05);
             z-index: 20; transition: transform 0.3s ease;
         }
@@ -111,11 +117,12 @@
             50% { opacity: 0.9; }
         }
 
-        @media (max-width: 768px) {
-            .glass-panel { width: 85%; padding: 25px; bottom: 5%; max-height: 85vh; overflow-y: auto; }
+        @media (max-width: 768px), (max-height: 740px) {
+            .glass-panel { width: min(550px, calc(100% - 24px)); max-width: calc(100% - 24px); padding: 25px; bottom: 5%; max-height: 82dvh; overflow-y: auto; }
             .glass-panel h1 { font-size: 2rem; }
             .glass-panel p.subtitle { font-size: 0.95rem; }
             .hidden-message.show { max-height: 40vh; }
+            .back-btn { top: 12px; left: 12px; padding: 9px 16px; font-size: 0.9rem; }
             .hint { display: none; }
         }
 

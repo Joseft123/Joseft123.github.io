@@ -13,10 +13,16 @@
             --bg-bottom: #020617;
         }
 
+        * {
+            box-sizing: border-box;
+        }
+
         body, html {
+            width: 100%;
             margin: 0;
             padding: 0;
             min-height: 100vh;
+            min-height: 100dvh;
             background: linear-gradient(180deg, var(--bg-top), var(--bg-bottom));
             font-family: 'Outfit', sans-serif;
             color: #ffffff;
@@ -109,6 +115,36 @@
             header {
                 margin-top: 30px !important;
             }
+            .subtitle {
+                margin-bottom: 36px;
+            }
+            .calendar-grid {
+                gap: 16px;
+                padding: 0 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .solar-system {
+                display: none;
+            }
+            header {
+                margin-top: 24px !important;
+                padding: 0 16px;
+            }
+            .subtitle {
+                margin-bottom: 28px;
+            }
+            .calendar-grid {
+                padding: 0 12px;
+                margin-bottom: 40px;
+            }
+            .card h2 {
+                font-size: 1.55rem;
+            }
+            .card p {
+                font-size: 0.95rem;
+            }
         }
 
         header {
@@ -143,10 +179,11 @@
         /* Grid de Calendario */
         .calendar-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
             gap: 20px;
-            width: 95%;
+            width: min(100%, 1000px);
             max-width: 1000px;
+            padding: 0 20px;
             z-index: 10;
             margin-bottom: 60px;
         }
@@ -155,7 +192,7 @@
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 20px;
-            padding: 30px 20px;
+            padding: clamp(22px, 4vw, 30px) clamp(16px, 3vw, 20px);
             text-align: center;
             text-decoration: none;
             color: #ffffff;

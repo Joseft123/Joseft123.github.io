@@ -24,6 +24,8 @@
         body, html {
             width: 100%;
             height: 100%;
+            min-height: 100vh;
+            min-height: 100dvh;
             overflow: hidden;
             background: linear-gradient(180deg, var(--bg-top), var(--bg-bottom));
             font-family: 'Outfit', sans-serif;
@@ -68,9 +70,10 @@
             border: 1px solid var(--glass-border);
             box-shadow: 0 25px 45px rgba(0, 0, 0, 0.3), inset 0 0 20px rgba(255, 255, 255, 0.05);
             text-align: center;
-            max-width: 90%;
-            width: 600px;
+            width: min(600px, calc(100% - 32px));
+            max-width: calc(100% - 32px);
             max-height: 85vh;
+            max-height: 85dvh;
             overflow-y: auto;
             transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -272,6 +275,28 @@
             animation: fade-pulse 3s infinite;
         }
 
+        body > a[href="../index.html"] {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            color: white;
+            text-decoration: none;
+            font-family: 'Outfit', sans-serif;
+            background: rgba(255,255,255,0.1);
+            padding: 10px 20px;
+            border-radius: 50px;
+            border: 1px solid rgba(255,255,255,0.3);
+            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        body > a[href="../index.html"]:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+
         @keyframes pulse-moon {
             from { box-shadow: 0 0 40px rgba(255, 255, 255, 0.3), 0 0 80px rgba(255, 255, 255, 0.1); }
             to { box-shadow: 0 0 60px rgba(255, 255, 255, 0.5), 0 0 120px rgba(255, 255, 255, 0.2); }
@@ -292,17 +317,30 @@
             50% { opacity: 0.8; }
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 768px), (max-height: 740px) {
             .glass-panel {
                 top: 8%;
                 padding: 20px 25px;
-                width: 92%;
+                width: min(600px, calc(100% - 24px));
+                max-width: calc(100% - 24px);
+                max-height: 82dvh;
             }
             .moon {
                 width: 70px;
                 height: 70px;
                 top: 5%;
                 right: 5%;
+            }
+            body > a[href="../index.html"] {
+                top: 12px !important;
+                left: 12px !important;
+                padding: 9px 16px !important;
+                font-size: 0.9rem !important;
+            }
+            .hint {
+                left: 12px;
+                width: calc(100% - 24px);
+                font-size: 0.8rem;
             }
             .hidden-message {
                 font-size: 1rem;
@@ -319,11 +357,12 @@
             }
         }
 
-        @media (max-width: 480px) {
+        @media (max-width: 480px), (max-height: 640px) {
             .glass-panel {
                 top: 5%;
                 padding: 15px 20px;
-                width: 95%;
+                width: min(600px, calc(100% - 20px));
+                max-width: calc(100% - 20px);
                 border-radius: 16px;
             }
             h1 {
@@ -346,6 +385,7 @@
             .magic-btn {
                 padding: 10px 20px;
                 font-size: 0.9rem;
+                width: 100%;
             }
         }
     </style>
