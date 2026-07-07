@@ -288,5 +288,31 @@
         </a>
     </div>
 
+    <script>
+        // Fecha de inicio de la semana de sorpresas
+        // Año, Mes (0-11, donde 6 es Julio), Día
+        const startDate = new Date(2026, 6, 7); 
+        startDate.setHours(0, 0, 0, 0);
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        // Calcula cuántos días han pasado (0 = Día 1, 1 = Día 2, etc.)
+        const diffDays = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+
+        const cards = document.querySelectorAll('.card');
+
+        cards.forEach((card, index) => {
+            // Si el índice del día (Día 1 = 0, Día 2 = 1) es mayor a los días transcurridos, se bloquea.
+            if (index > diffDays) {
+                card.classList.add('locked');
+                
+                // Evita que el enlace abra la página si le hacen clic
+                card.addEventListener('click', (e) => {
+                    e.preventDefault(); 
+                });
+            }
+        });
+    </script>
 </body>
 </html>
