@@ -147,6 +147,27 @@
             }
         }
 
+        @media (hover: none), (pointer: coarse) {
+            .solar-system {
+                display: none;
+            }
+            .stars {
+                opacity: 0.45;
+            }
+            .card {
+                backdrop-filter: none;
+                -webkit-backdrop-filter: none;
+                box-shadow: 0 8px 22px rgba(0,0,0,0.18);
+            }
+            .card:hover:not(.locked) {
+                transform: none;
+                box-shadow: 0 8px 22px rgba(0,0,0,0.18);
+            }
+            .icon {
+                filter: none;
+            }
+        }
+
         header {
             margin-top: 60px;
             text-align: center;

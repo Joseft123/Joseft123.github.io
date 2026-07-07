@@ -297,6 +297,23 @@
             transform: translateY(-2px);
         }
 
+        html.low-power .glass-panel,
+        html.low-power .magic-btn,
+        html.low-power body > a[href="../index.html"] {
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+
+        html.low-power .glass-panel {
+            box-shadow: 0 14px 30px rgba(0, 0, 0, 0.28);
+        }
+
+        html.low-power .moon,
+        html.low-power .bloom {
+            filter: none;
+            box-shadow: none;
+        }
+
         @keyframes pulse-moon {
             from { box-shadow: 0 0 40px rgba(255, 255, 255, 0.3), 0 0 80px rgba(255, 255, 255, 0.1); }
             to { box-shadow: 0 0 60px rgba(255, 255, 255, 0.5), 0 0 120px rgba(255, 255, 255, 0.2); }
@@ -419,6 +436,13 @@
     <div class="hint">Haz clic en cualquier parte de la pantalla para plantar una flor</div>
 
     <script>
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
+        const lowPowerMode = prefersReducedMotion || isTouchDevice || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
+        if (lowPowerMode) {
+            document.documentElement.classList.add('low-power');
+        }
+
         // --- Interacciones (Audio y Mensaje) ---
         let audioPlayed = false;
         
@@ -521,8 +545,8 @@
                     if (mouse.x != null) {
                         let dx = mouse.x - this.x;
                         let dy = mouse.y - this.y;
-                        let dist = Math.sqrt(dx*dx + dy*dy);
-                        if (dist < 120) {
+                        let distSq = dx * dx + dy * dy;
+                        if (distSq < 14400) {
                             this.x -= dx * 0.03;
                             this.y -= dy * 0.03;
                         }
@@ -597,11 +621,11 @@
 
         function initParticles() {
             particles = [];
-            shootingStars = [new ShootingStar(), new ShootingStar()];
+            shootingStars = lowPowerMode ? [new ShootingStar()] : [new ShootingStar(), new ShootingStar()];
             
             const isMobile = window.innerWidth < 768;
-            const numStars = isMobile ? 50 : 150;
-            const numFireflies = isMobile ? 20 : 60;
+            const numStars = lowPowerMode ? 30 : (isMobile ? 50 : 150);
+            const numFireflies = lowPowerMode ? 10 : (isMobile ? 20 : 60);
             
             // Stars
             for(let i=0; i<numStars; i++) particles.push(new Particle(false));
@@ -609,7 +633,16 @@
             for(let i=0; i<numFireflies; i++) particles.push(new Particle(true));
         }
 
-        function animateCanvas() {
+        let lastCanvasFrame = 0;
+        const frameInterval = lowPowerMode ? 1000 / 30 : 1000 / 60;
+
+        function animateCanvas(timestamp = 0) {
+            if (lowPowerMode && timestamp - lastCanvasFrame < frameInterval) {
+                requestAnimationFrame(animateCanvas);
+                return;
+            }
+            lastCanvasFrame = timestamp;
+
             ctx.clearRect(0, 0, width, height);
             
             particles.forEach(p => {
@@ -621,7 +654,7 @@
                 if(star.active) {
                     star.update();
                     star.draw();
-                } else if(Math.random() < 0.005) { // 0.5% chance per frame per star
+                } else if(Math.random() < (lowPowerMode ? 0.002 : 0.005)) { // 0.5% chance per frame per star
                     star.spawn();
                 }
             });
@@ -710,7 +743,7 @@
 
         // Flores iniciales
         const isMobile = window.innerWidth < 768;
-        const numInitialFlowers = isMobile ? 6 : 15;
+        const numInitialFlowers = lowPowerMode ? 4 : (isMobile ? 6 : 15);
         for (let i = 0; i < numInitialFlowers; i++) {
             createFlower(Math.random() * 100);
         }

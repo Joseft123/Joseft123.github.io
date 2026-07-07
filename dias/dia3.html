@@ -103,6 +103,13 @@
         }
         .back-btn:hover { background: rgba(255, 255, 255, 0.2); transform: translateY(-2px); }
 
+        html.low-power .glass-panel,
+        html.low-power .magic-btn,
+        html.low-power .back-btn {
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+        }
+
         .hint {
             position: absolute;
             top: 20px; right: 20px;
@@ -149,6 +156,12 @@
     </div>
 
     <script>
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
+        const lowPowerMode = prefersReducedMotion || isTouchDevice || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
+        if (lowPowerMode) {
+            document.documentElement.classList.add('low-power');
+        }
         // --- Interacciones (Botón Mágico) ---
         function revealMessage(event) {
             event.stopPropagation();
@@ -336,13 +349,13 @@
             shootingStars = [];
             
             // Ambient stars
-            const numStars = (width * height) / 4000;
+            const numStars = lowPowerMode ? (width * height) / 7000 : (width * height) / 4000;
             for(let i=0; i<numStars; i++) {
                 ambientStars.push(new Star(Math.random() * width, Math.random() * height));
             }
             
             // Shooting stars
-            for(let i=0; i<3; i++) {
+            for(let i=0; i<(lowPowerMode ? 1 : 3); i++) {
                 shootingStars.push(new ShootingStar());
             }
 
@@ -410,7 +423,16 @@
             ctx.shadowBlur = 0;
         }
 
-        function animate() {
+        let lastCanvasFrame = 0;
+        const frameInterval = lowPowerMode ? 1000 / 30 : 1000 / 60;
+
+        function animate(timestamp = 0) {
+            if (lowPowerMode && timestamp - lastCanvasFrame < frameInterval) {
+                requestAnimationFrame(animate);
+                return;
+            }
+            lastCanvasFrame = timestamp;
+
             ctx.clearRect(0, 0, width, height);
             time++;
 

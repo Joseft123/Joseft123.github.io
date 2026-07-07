@@ -186,6 +186,17 @@
             transform: translateY(-2px);
         }
 
+        html.low-power .glass-panel,
+        html.low-power .magic-btn,
+        html.low-power .back-btn {
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+        }
+
+        html.low-power .sun {
+            box-shadow: 0 0 70px #ff8c00, 0 0 140px #ffeb3b;
+        }
+
         /* --- Beautiful Sunflowers --- */
         .garden {
             position: absolute;
@@ -370,6 +381,12 @@
     <div class="garden" id="garden"></div>
 
     <script>
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
+        const lowPowerMode = prefersReducedMotion || isTouchDevice || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
+        if (lowPowerMode) {
+            document.documentElement.classList.add('low-power');
+        }
         // --- Interacciones (Botón Mágico) ---
         function revealMessage(event) {
             event.stopPropagation();
@@ -389,7 +406,7 @@
         const garden = document.getElementById('garden');
         const heads = [];
         const isMobile = window.innerWidth < 768;
-        const numSunflowers = isMobile ? 6 : 12;
+        const numSunflowers = lowPowerMode ? 4 : (isMobile ? 6 : 12);
 
         function createSunflower(leftPercent, scale, zIndex, delay) {
             const container = document.createElement('div');
@@ -539,10 +556,19 @@
             }
         }
 
-        const numParticles = isMobile ? 30 : 80;
+        const numParticles = lowPowerMode ? 18 : (isMobile ? 30 : 80);
         for (let i = 0; i < numParticles; i++) particles.push(new Pollen());
 
-        function animate() {
+        let lastCanvasFrame = 0;
+        const frameInterval = lowPowerMode ? 1000 / 30 : 1000 / 60;
+
+        function animate(timestamp = 0) {
+            if (lowPowerMode && timestamp - lastCanvasFrame < frameInterval) {
+                requestAnimationFrame(animate);
+                return;
+            }
+            lastCanvasFrame = timestamp;
+
             ctx.clearRect(0, 0, width, height);
             particles.forEach(p => { p.update(); p.draw(); });
             requestAnimationFrame(animate);

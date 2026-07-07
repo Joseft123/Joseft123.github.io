@@ -106,6 +106,23 @@
         }
         .back-btn:hover { background: rgba(0, 255, 255, 0.2); transform: translateY(-2px); border-color: var(--highlight); }
 
+        html.low-power .glass-panel,
+        html.low-power .magic-btn,
+        html.low-power .back-btn {
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+        }
+
+        html.low-power .ray:nth-child(n+3),
+        html.low-power .bubble:nth-child(n+4),
+        html.low-power .fish:nth-child(n+3) {
+            display: none;
+        }
+
+        html.low-power .fish {
+            filter: none;
+        }
+
         .hint {
             position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
             color: rgba(0, 255, 255, 0.6); font-size: 0.9rem; pointer-events: none;
@@ -237,6 +254,12 @@
     <div class="hint">Desliza o mueve tu dedo por la pantalla para hacer brillar el agua...</div>
 
     <script>
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const isTouchDevice = window.matchMedia('(pointer: coarse)').matches;
+        const lowPowerMode = prefersReducedMotion || isTouchDevice || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
+        if (lowPowerMode) {
+            document.documentElement.classList.add('low-power');
+        }
         // --- Interacciones (Botón Mágico) ---
         function revealMessage(event) {
             event.stopPropagation();
@@ -269,7 +292,7 @@
         window.addEventListener('touchmove', function(event) {
             mouse.x = event.touches[0].clientX;
             mouse.y = event.touches[0].clientY;
-        });
+        }, { passive: true });
 
         window.addEventListener('mouseout', function() {
             mouse.x = null;
@@ -314,9 +337,10 @@
                 if (mouse.x !== null) {
                     let dx = mouse.x - this.x;
                     let dy = mouse.y - this.y;
-                    let distance = Math.sqrt(dx * dx + dy * dy);
+                    let distanceSq = dx * dx + dy * dy;
                     
-                    if (distance < mouse.radius) {
+                    if (distanceSq < mouse.radius * mouse.radius) {
+                        let distance = Math.sqrt(distanceSq);
                         let force = (mouse.radius - distance) / mouse.radius;
                         this.size = this.baseSize + force * 4;
                         this.glowIntensity = force;
@@ -344,7 +368,7 @@
                 
                 if (this.isGlowing) {
                     ctx.fillStyle = `rgba(100, 255, 255, ${0.1 + this.glowIntensity * 0.9})`;
-                    ctx.shadowBlur = 10 * this.glowIntensity;
+                    ctx.shadowBlur = lowPowerMode ? 0 : 10 * this.glowIntensity;
                     ctx.shadowColor = '#00ffff';
                 } else {
                     ctx.fillStyle = this.baseColor;
@@ -357,13 +381,22 @@
 
         function initParticles() {
             particles = [];
-            const numParticles = (width * height) / 3000; // Density
+            const numParticles = lowPowerMode ? (width * height) / 5500 : (width * height) / 3000; // Density
             for (let i = 0; i < numParticles; i++) {
                 particles.push(new Particle());
             }
         }
 
-        function animateCanvas() {
+        let lastCanvasFrame = 0;
+        const frameInterval = lowPowerMode ? 1000 / 30 : 1000 / 60;
+
+        function animateCanvas(timestamp = 0) {
+            if (lowPowerMode && timestamp - lastCanvasFrame < frameInterval) {
+                requestAnimationFrame(animateCanvas);
+                return;
+            }
+            lastCanvasFrame = timestamp;
+
             // Slight trails effect instead of clearRect
             ctx.fillStyle = 'rgba(0, 11, 24, 0.2)'; 
             ctx.fillRect(0, 0, width, height);
